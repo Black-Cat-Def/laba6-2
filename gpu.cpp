@@ -118,6 +118,80 @@ unique_ptr<GPU> Pro_GPU::Copy() const {
     return make_unique<Pro_GPU>(*this);
 }
 
+// Шаблонный метод: задаёт фиксированный порядок шагов
+void GPU::Run_Benchmark() {
+    Prepare_Benchmark();   // Шаг 1: подготовка
+    Execute_Benchmark();   // Шаг 2: нагрузочный тест
+    Collect_Results();     // Шаг 3: сбор результатов
+    Print_Report();        // Шаг 4: итоговый отчёт (общий)
+}
+
+// Шаг 1 по умолчанию - общая подготовка для всех GPU
+void GPU::Prepare_Benchmark() {
+    cout << "[Подготовка] " << model << ": сброс драйверов и очистка кэша GPU" << endl;
+}
+
+// Шаг 2 по умолчанию - базовая заглушка
+void GPU::Execute_Benchmark() {
+    cout << "[Тест] " << model << ": выполнение стандартного нагрузочного теста" << endl;
+}
+
+// Шаг 3 по умолчанию - базовая заглушка
+void GPU::Collect_Results() {
+    cout << "[Результат] " << model << ": результаты получены" << endl;
+}
+
+// Шаг 4 — итоговый отчёт, одинаков для всех
+void GPU::Print_Report() {
+    cout << "[Отчёт] " << model
+         << " | VRAM: " << vramGB << " ГБ"
+         << " | TDP: " << tdpW << " Вт"
+         << " | Тип: " << GPU_Type_Names.at(Get_Type_Enum())
+         << endl;
+}
+
+
+// Шаг 2: RTX запускает тест на FPS в 3D сцене с трассировкой лучей
+void RTX_GPU::Execute_Benchmark() {
+    cout << "[Тест] " << model << ": запуск 3D сцены с трассировкой лучей (RTX On)" << endl;
+}
+
+// Шаг 3: RTX выводит результат в виде FPS
+void RTX_GPU::Collect_Results() {
+    int fps = vramGB * 10 + tdpW / 10; // условная формула для демонстрации
+    cout << "[Результат] " << model << ": средний FPS = " << fps << endl;
+}
+
+
+// Шаг 1: Integrated дополнительно резервирует системную оперативную память
+void Integrated_GPU::Prepare_Benchmark() {
+    GPU::Prepare_Benchmark(); // вызываем общую подготовку базового класса
+    cout << "[Подготовка] " << model << ": резервирование " << vramGB << " ГБ системной RAM для GPU" << endl;
+}
+
+// Шаг 2: Integrated запускает лёгкий 2D тест
+void Integrated_GPU::Execute_Benchmark() {
+    cout << "[Тест] " << model << ": запуск лёгкого 2D теста (3D недоступен)" << endl;
+}
+
+// Шаг 3: Integrated выводит синтетический балл
+void Integrated_GPU::Collect_Results() {
+    int score = vramGB * 50 + tdpW * 2; // условная формула для демонстрации
+    cout << "[Результат] " << model << ": синтетический балл = " << score << endl;
+}
+
+
+// Шаг 2: Pro запускает тест на точность вычислений двойной точности
+void Pro_GPU::Execute_Benchmark() {
+    cout << "[Тест] " << model << ": запуск теста вычислений FP64 (двойная точность)" << endl;
+}
+
+// Шаг 3: Pro выводит результат в TFLOPS
+void Pro_GPU::Collect_Results() {
+    double tflops = vramGB * 0.5 + tdpW * 0.02; // условная формула для демонстрации
+    cout << "[Результат] " << model << ": производительность FP64 = " << tflops << " TFLOPS" << endl;
+}
+
 GPU_Wrapper::GPU_Wrapper(std::shared_ptr<GPU> p) : ptr(p) {}
 
 bool GPU_Wrapper::operator==(const GPU_Wrapper& other) const {

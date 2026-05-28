@@ -41,6 +41,25 @@ public:
 
     virtual std::unique_ptr<GPU> Copy() const;
 
+
+    // Шаблонный метод - алгоритм бенчмарка
+    void Run_Benchmark();
+
+protected:
+    // Шаг 1: Подготовка к тесту
+    virtual void Prepare_Benchmark();
+
+    // Шаг 2: Выполнение нагрузочного теста
+    virtual void Execute_Benchmark();
+
+    // Шаг 3: Сбор и вывод результатов
+    virtual void Collect_Results();
+
+private:
+    // Шаг 4: Вывод итогового отчёта
+    void Print_Report();
+
+public:
     std::string Get_Model() const { return model; }
     std::string Get_Type_VRAM() const { return type_vramGB; } //Новые методы в базовый класс GPU для того, чтобы класс SQLite мог прочитать значения
     int Get_TDP() const { return tdpW; }
@@ -66,6 +85,12 @@ public:
     int Get_Extra_Param() const override { return rt_core; }
 
     std::unique_ptr<GPU> Copy() const override;
+
+protected:
+    // Шаг 2: RTX запускает тест на FPS в 3D сцене с трассировкой лучей
+    void Execute_Benchmark() override;
+    // Шаг 3: RTX выводит результат в виде FPS
+    void Collect_Results() override;
 };
 
 class Integrated_GPU : public GPU {
@@ -84,6 +109,14 @@ public:
     int Get_Extra_Param() const override { return uses_shared_ram; }
 
     std::unique_ptr<GPU> Copy() const override;
+
+protected:
+    // Шаг 1: Integrated дополнительно резервирует системную оперативную память
+    void Prepare_Benchmark() override;
+    // Шаг 2: Integrated запускает лёгкий 2D тест
+    void Execute_Benchmark() override;
+    // Шаг 3: Integrated выводит синтетический балл производительности
+    void Collect_Results() override;
 };
 
 class Pro_GPU : public GPU {
@@ -102,6 +135,12 @@ public:
     int Get_Extra_Param() const override { return has_ecc_memory; }
 
     std::unique_ptr<GPU> Copy() const override;
+
+protected:
+    // Шаг 2: Pro запускает тест на точность вычислений двойной точности
+    void Execute_Benchmark() override;
+    // Шаг 3: Pro выводит результат в TFLOPS
+    void Collect_Results() override;
 };
 
 class GPU_Wrapper {

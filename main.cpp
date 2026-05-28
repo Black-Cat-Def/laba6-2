@@ -119,11 +119,34 @@ int main() {
     cout << "\n--- Стратегия Render применяется ко всему контейнеру через итератор ---" << endl;
     GPU_Context container_context(make_unique<Render_Strategy>());
     auto it_for_strategy = gpu_container.Create_Iterator();
-    for (it_for_strategy->First(); !it_for_strategy->Is_Done(); it_for_strategy->Next())
-    {
+    for (it_for_strategy->First(); !it_for_strategy->Is_Done(); it_for_strategy->Next()) {
         container_context.Run(it_for_strategy->Current_Item());
     }
 
+    cout << "\n=== Демонстрация паттерна Шаблонный метод (Run_Benchmark) ===" << endl;
+
+    // Создаём объекты через unique_ptr на базовый класс
+    // Run_Benchmark() вызывает правильные шаги у каждого типа
+    unique_ptr<GPU> gpu1 = make_unique<RTX_GPU>("NVIDIA RTX 4090", "GDDR6X", 24, 450, true);
+    unique_ptr<GPU> gpu2 = make_unique<Integrated_GPU>("Intel UHD Graphics 770", "Shared", 2, 65, true);
+    unique_ptr<GPU> gpu3 = make_unique<Pro_GPU>("NVIDIA RTX A6000", "GDDR6 ECC", 48, 300, true);
+
+    cout << "\n--- Бенчмарк RTX GPU ---" << endl;
+    gpu1->Run_Benchmark();
+
+    cout << "\n--- Бенчмарк встроенной графики ---" << endl;
+    gpu2->Run_Benchmark();
+
+    cout << "\n--- Бенчмарк профессиональной GPU ---" << endl;
+    gpu3->Run_Benchmark();
+
+    // Демонстрация через итератор контейнера — один вызов для всех типов
+    cout << "\n--- Бенчмарк всего контейнера через итератор ---" << endl;
+    auto bench_it = gpu_container.Create_Iterator();
+    for (bench_it->First(); !bench_it->Is_Done(); bench_it->Next()) {
+        bench_it->Current_Item()->Run_Benchmark();
+        cout << endl;
+    }
 
     return 0;
 }
