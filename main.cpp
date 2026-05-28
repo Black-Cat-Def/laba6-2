@@ -3,6 +3,7 @@
 #include "gpu.h"
 #include "container.h"
 #include "sqlite_container.h"
+#include "gpu_strategy.h"
 
 using namespace std;
 
@@ -84,6 +85,45 @@ int main() {
 
     auto db_it = db_container.Create_Iterator();
     ProcessAllGPUs(*db_it, "Обход видеокарт, сохраненных в базе данных SQLite");
+
+    cout << "\n=== Демонстрация паттерна Стратегия ===" << endl;
+
+    // Создаём несколько GPU для демонстрации
+    auto rtx = make_unique<RTX_GPU>("NVIDIA RTX 4090", "GDDR6X", 24, 450, true);
+    auto igpu = make_unique<Integrated_GPU>("Intel UHD Graphics 770", "Shared", 2, 65, true);
+    auto pro = make_unique<Pro_GPU>("NVIDIA RTX A6000", "GDDR6 ECC", 48, 300, true);
+
+    // Контекст создаётся с начальной стратегией — Render
+    GPU_Context context(make_unique<Render_Strategy>());
+
+    cout << "--- Стратегия: Render ---" << endl;
+    context.Run(rtx.get());
+    context.Run(igpu.get());
+    context.Run(pro.get());
+
+    // Меняем стратегию на AI_Generate
+    context.Set_Strategy(make_unique<AI_Generate_Strategy>());
+    cout << "\n--- Стратегия: Generate_Ai_Picture ---" << endl;
+    context.Run(rtx.get());
+    context.Run(igpu.get());
+    context.Run(pro.get());
+
+    // Меняем стратегию на Mining
+    context.Set_Strategy(make_unique<Mining_Strategy>());
+    cout << "\n--- Стратегия: Mining ---" << endl;
+    context.Run(rtx.get());
+    context.Run(igpu.get());
+    context.Run(pro.get());
+
+    // Стратегия применяется к контейнеру через итератор
+    cout << "\n--- Стратегия Render применяется ко всему контейнеру через итератор ---" << endl;
+    GPU_Context container_context(make_unique<Render_Strategy>());
+    auto it_for_strategy = gpu_container.Create_Iterator();
+    for (it_for_strategy->First(); !it_for_strategy->Is_Done(); it_for_strategy->Next())
+    {
+        container_context.Run(it_for_strategy->Current_Item());
+    }
+
 
     return 0;
 }

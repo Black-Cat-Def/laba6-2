@@ -1,14 +1,16 @@
-cmake_minimum_required(VERSION 4.2)
-project(laba5_2)
+cmake_minimum_required(VERSION 3.16)
+project(laba6_2)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(laba5_2 main.cpp
+add_executable(laba6_2 main.cpp
+        container.cpp
+        container.h
         gpu.cpp
         gpu.h
-        container.h
-        container.cpp
         sqlite3.c
         sqlite3.h
+        sqlite_container.cpp
         sqlite_container.h
-        sqlite_container.cpp)
+        gpu_strategy.h
+        gpu_strategy.cpp)
